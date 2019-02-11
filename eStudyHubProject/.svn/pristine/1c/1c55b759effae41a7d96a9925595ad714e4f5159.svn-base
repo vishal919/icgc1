@@ -1,0 +1,58 @@
+package com.excelit.estudyhub.student.dao.implement;
+
+import java.io.Serializable;
+import java.util.List;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.excelit.estudyhub.student.bean.BasicStudentInformationBean;
+import com.excelit.estudyhub.student.bean.PreviousSchoolingInfoBean;
+import com.excelit.estudyhub.student.dao.BasicStudentRegisterDao;
+
+@Repository
+public class BasicStudentRegisterDaoImpl implements BasicStudentRegisterDao {
+	@Autowired
+	private SessionFactory sessionFactory;
+	private Serializable save = null;
+
+	public BasicStudentInformationBean saveBasicStudentInformationDao(
+			BasicStudentInformationBean basicStudentInformation) {
+		save = sessionFactory.getCurrentSession().save(basicStudentInformation);
+		if (save != null) {
+			return basicStudentInformation;
+		} else {
+
+			return null;
+		}
+
+	}
+
+	public PreviousSchoolingInfoBean savePreviousSchoolingDao(PreviousSchoolingInfoBean previousSchoolingInfo) {
+		save = sessionFactory.getCurrentSession().save(previousSchoolingInfo);
+		if (save != null) {
+			return previousSchoolingInfo;
+		} else {
+
+			return null;
+		}
+	}
+
+	public BasicStudentInformationBean getBasicStudentInformationDao() {
+		return (BasicStudentInformationBean) sessionFactory.getCurrentSession()
+				.createCriteria(BasicStudentInformationBean.class).uniqueResult();
+	}
+
+	public BasicStudentInformationBean updateStudentSelectionProcessDao(
+			BasicStudentInformationBean basicStudentInformationBean) {
+		sessionFactory.getCurrentSession().saveOrUpdate(basicStudentInformationBean);
+		return basicStudentInformationBean;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<PreviousSchoolingInfoBean> getStudentPreviousSchoolingDao() {
+		return sessionFactory.getCurrentSession().createCriteria(PreviousSchoolingInfoBean.class).list();
+	}
+
+}

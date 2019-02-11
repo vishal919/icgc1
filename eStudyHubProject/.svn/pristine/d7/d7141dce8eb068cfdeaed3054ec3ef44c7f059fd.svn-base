@@ -1,0 +1,79 @@
+package com.excelit.estudyhub.student.service.implement;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.excelit.estudyhub.student.bean.BasicStudentInformationBean;
+import com.excelit.estudyhub.student.bean.PreviousSchoolingInfoBean;
+import com.excelit.estudyhub.student.dao.BasicStudentRegisterDao;
+import com.excelit.estudyhub.student.request.StudentRegistrationRequest;
+import com.excelit.estudyhub.student.service.BasicStudentRegisterService;
+import com.excelit.estudyhub.utils.EStudyHubUtill;
+
+@Service
+public class BasicStudentRegisterServiceImpl implements BasicStudentRegisterService {
+	@Autowired
+	private BasicStudentRegisterDao basicStudentRegisterDao;
+
+	@Transactional
+	public BasicStudentInformationBean saveBasicStudentInformationService(
+			StudentRegistrationRequest studentRegistrationRequest) {
+		BasicStudentInformationBean basicStudentInformation = studentRegistrationRequest
+				.getBasicStudentInformationBean();
+		BasicStudentInformationBean basicStudentInformationBean = new BasicStudentInformationBean();
+		String registerId = "";
+		Integer studentRegisterId = 0;
+		BasicStudentInformationBean basicStudentInfo = basicStudentRegisterDao.getBasicStudentInformationDao();
+		registerId = basicStudentInfo.getStudentRegistrationId();
+		if (EStudyHubUtill.isNullString(registerId)) {
+			registerId = "0";
+		}
+		studentRegisterId = Integer.parseInt(registerId);
+		studentRegisterId++;
+		basicStudentInformation.setStudentRegistrationId(studentRegisterId.toString());
+		basicStudentInformation.setRegistrationStatus("submitted");
+		basicStudentInformationBean = basicStudentRegisterDao.saveBasicStudentInformationDao(basicStudentInformation);
+		savePreviousSchoolingService(studentRegistrationRequest, basicStudentInformationBean);
+
+		return basicStudentInformationBean;
+
+	}
+
+	@Transactional
+	public PreviousSchoolingInfoBean savePreviousSchoolingService(StudentRegistrationRequest studentRegistrationRequest,
+			BasicStudentInformationBean basicStudentInformationBean) {
+		PreviousSchoolingInfoBean previousSchoolingInfoBean = new PreviousSchoolingInfoBean();
+		for (PreviousSchoolingInfoBean previousSchoolingInformation : studentRegistrationRequest
+				.getPreviousSchoolingInfoBean()) {
+			previousSchoolingInformation.setStudentRegistration(basicStudentInformationBean);
+			previousSchoolingInfoBean = basicStudentRegisterDao.savePreviousSchoolingDao(previousSchoolingInformation);
+		}
+		return previousSchoolingInfoBean;
+	}
+
+	@Transactional
+	public BasicStudentInformationBean getBasicStudentInformationService() {
+		return basicStudentRegisterDao.getBasicStudentInformationDao();
+	}
+
+	@Transactional
+	public BasicStudentInformationBean updateStudentSelectionProcessService(
+			StudentRegistrationRequest studentRegistrationRequest) {
+		BasicStudentInformationBean basicStudentInformation = new BasicStudentInformationBean();
+		for (BasicStudentInformationBean basicStudentInformationList : studentRegistrationRequest
+				.getBasicStudentInformationBeanList()) {
+			basicStudentInformation = basicStudentRegisterDao
+					.updateStudentSelectionProcessDao(basicStudentInformationList);
+		}
+		return basicStudentInformation;
+	}
+
+	@Transactional
+	public List<PreviousSchoolingInfoBean> getStudentPreviousSchoolingService() {
+		return basicStudentRegisterDao.getStudentPreviousSchoolingDao();
+	}
+
+}
